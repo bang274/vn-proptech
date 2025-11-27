@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect # <--- Add 'red
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from .models import Property, Inquiry
+import os # Make sure this is imported
 # NOTE: In a real app, put the key in settings.py or .env
 # For now, we will initialize the client inside the function for speed.
 
@@ -24,7 +25,9 @@ def generate_pitch(request, pk):
     
     # 2. Configure Gemini
     # Go to https://aistudio.google.com/app/apikey to get your key
-    genai.configure(api_key="AIzaSyA7OTmiUR_aIsUDZrNUjEMp_7AHX3HBDsE")
+
+    api_key = os.environ.get("GEMINI_API_KEY") # <--- Safe and clean
+    genai.configure(api_key=api_key)
     
     # 3. Initialize the Model
     # We use 'gemini-1.5-flash' because it is fast and cheap (perfect for simple tasks)
