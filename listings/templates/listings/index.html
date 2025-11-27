@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>VN Real Estate Empire</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class="bg-light">
+    
+        <nav class="navbar navbar-dark bg-dark mb-4">
+            <div class="container">
+                <a class="navbar-brand" href="#">🏢 VN PropTech</a>
+            </div>
+        </nav>
+    
+        <div class="container">
+            <h1 class="mb-4 text-center">Premium Listings</h1>
+            <div class="row mb-5">
+                <div class="col-md-8 mx-auto">
+                    <form method="GET" action="{% url 'listings_index' %}">
+                        <div class="input-group input-group-lg">
+                            <input type="text" name="q" class="form-control" placeholder="Search by District, Title, or Keyword..." value="{{ request.GET.q }}">
+                            <button class="btn btn-primary px-4" type="submit">
+                                🔍 Search
+                            </button>
+                            {% if request.GET.q %}
+                                <a href="{% url 'listings_index' %}" class="btn btn-outline-secondary">Clear</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="row">
+                {% if properties %}
+                    {% for prop in properties %}
+                    <div class="card shadow-sm h-100">
+                        {% if prop.main_photo %}
+                            <img src="{{ prop.main_photo.url }}" class="card-img-top" alt="{{ prop.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span>No Image Available</span>
+                            </div>
+                        {% endif %}
+                    
+                        <div class="card-body">
+                            ```
+                                    <h5 class="card-title">
+                                        <a href="{% url 'property_detail' prop.pk %}" class="text-decoration-none text-primary stretched-link">
+                                            {{ prop.title }}
+                                        </a>
+                                    </h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">{{ prop.location_district }}</h6>
+                                    <p class="card-text">
+                                        <strong>Price:</strong> {{ prop.price_in_billions }} Billion<br>
+                                        <strong>Area:</strong> {{ prop.area_sqm }} m²
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Alley Width:</strong> {{ prop.alley_width_meters }}m
+                                    </p>
+                                    
+                                    {% if prop.alley_width_meters < 2.5 %}
+                                        <div class="alert alert-danger p-1 text-center">
+                                            🚫 <strong>WARNING:</strong> Car Cannot Enter!
+                                            <br><small>Hard to resell.</small>
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-success p-1 text-center">
+                                            🚗 Car Access OK
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="mt-3">
+                                        {% if prop.is_legal_clear %}
+                                            <span class="badge bg-success">Red Book Ready</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Processing Legal</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">No properties found. The market is quiet.</div>
+                {% endif %}
+            </div>
+        </div>
+    
+    </body>
+</html>

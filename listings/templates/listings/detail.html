@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ prop.title }} | VN PropTech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS for that "Premium" feel */
+        .hero-image-container {
+            height: 500px; /* Tall, immersive image */
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* This forces the image to fill the box perfectly without stretching */
+        }
+        .price-tag {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+        .feature-icon {
+            font-size: 1.2rem;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-light bg-white shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'listings_index' %}">
+                🏢 VN Real Estate <span class="text-muted fw-normal">| Premium Collection</span>
+            </a>
+            <a href="{% url 'listings_index' %}" class="btn btn-outline-secondary btn-sm">← Back to Market</a>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div class="row">
+            
+            <div class="col-lg-7 mb-4">
+                <div class="hero-image-container">
+                    {% if prop.main_photo %}
+                        <img src="{{ prop.main_photo.url }}" class="hero-image" alt="{{ prop.title }}">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                            <h3>No Image Available</h3>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <h1 class="display-6 fw-bold mb-2">{{ prop.title }}</h1>
+                <p class="text-muted mb-4"><i class="bi bi-geo-alt-fill"></i> {{ prop.location_district }}</p>
+                
+                <div class="price-tag mb-4">
+                    {{ prop.price_in_billions }} Tỷ <small class="fs-6 text-muted">VND</small>
+                </div>
+
+                <div class="row mb-4 g-2">
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-white text-center">
+                            <div class="text-muted small">Area</div>
+                            <div class="fw-bold">{{ prop.area_sqm }} m²</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 border rounded bg-white text-center">
+                            <div class="text-muted small">Alley Width</div>
+                            <div class="fw-bold {{ prop.alley_width_meters|yesno:'text-success,text-danger' }}">
+                                {{ prop.alley_width_meters }}m
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm bg-white">
+                    <div class="card-body">
+                        <h5 class="card-title">🤖 AI Agent Insight</h5>
+                        <hr>
+                        {% if prop.ai_description %}
+                            <p class="card-text text-secondary" style="white-space: pre-line;">
+                                {{ prop.ai_description }}
+                            </p>
+                        {% else %}
+                            <div class="alert alert-light border">
+                                No analysis available.
+                                <br>
+                                <a href="{% url 'generate_pitch' prop.pk %}" class="btn btn-dark btn-sm mt-2 w-100">
+                                    Generate Sales Pitch
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card bg-light mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Interested? Contact Us</h5>
+                        <form action="{% url 'inquiry' %}" method="POST">
+                            {% csrf_token %} <input type="hidden" name="listing_id" value="{{ prop.id }}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Your Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Phone (Zalo)</label>
+                                <input type="text" name="phone" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Message</label>
+                                <textarea name="message" class="form-control" rows="2">I am interested in {{ prop.title }}</textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">Send Inquiry</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
