@@ -66,22 +66,35 @@ def generate_pitch(request, pk):
 
 def property_list(request):
     # 1. Start with ALL properties
-    properties = Property.objects.all().order_by('-price_in_billions') # Sort by price high to low
+    properties = Property.objects.order_by('-price_in_billions') # Make sure you order them or pagination breaks
     
-    # 2. Check if the user sent a search query
-    query = request.GET.get('q') # 'q' matches the name="q" in the HTML input
-    
-    if query:
-        # 3. Filter the list
-        # We use Q objects to say: "Title contains query OR Location contains query"
-        # 'icontains' means Case-Insensitive (Capital or lowercase doesn't matter)
-        properties = properties.filter(
-            Q(title__icontains=query) | 
-            Q(location_district__icontains=query)
-        )
+    # 2. Capture the inputs so we can keep them in the search bar after refresh
+    # (This prevents the form from clearing itself)
+    values = {
+        'q': request.GET.get('q', ''),
+        'district': request.GET.get('district', ''),
+        'price': request.GET.get('price', '')
+    }
 
-    # 4. Return the (possibly filtered) list
-    return render(request, 'listings/index.html', {'properties': properties})
+    # 3. Filter: Keywords
+    if values['q']:
+        properties = properties.filter(title__icontains=values['q'])
+
+    # 4. Filter: District (Exact Match)
+    if values['district']:
+        properties = properties.filter(location_district__icontains=values['district'])
+
+    # 5. Filter: Price (Less Than or Equal To)
+    if values['price']:
+        properties = properties.filter(price_in_billions__lte=values['price'])
+
+    # 6. Return context
+    context = {
+        'properties': properties,
+        'values': values # Pass this back so the HTML knows what we typed
+    }
+    
+    return render(request, 'listings/index.html', context)
 
 def inquiry(request):
     if request.method == 'POST':
